@@ -10,6 +10,7 @@ import { Slider } from "./components/ui/slider";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "./components/ui/tabs";
+import VoiceConversation from "./components/ui/voice";
 
 import { Download, Filter, Search, Phone, Clock, AudioLines, MapPin, Languages, CircleDot, Star, CalendarClock, Share2, X, Link2, Building2, ShieldCheck, DollarSign } from "lucide-react";
 
@@ -293,6 +294,7 @@ export default function ManzilVoiceAgentDashboard(): JSX.Element {
   const [minVip, setMinVip] = useState(60);
   const [active, setActive] = useState<any | null>(null);
   const [open, setOpen] = useState(false);
+  const [showVoiceInterface, setShowVoiceInterface] = useState(false);
 
   useEffect(() => {
     getLeads().then(setLeads);
@@ -376,6 +378,12 @@ export default function ManzilVoiceAgentDashboard(): JSX.Element {
   }, [convosFiltered]);
 
   const onOpen = (it: any) => { setActive(it); setOpen(true); };
+
+  const handleConversationEnd = (newConversation: any) => {
+    // Add the new conversation to the conversations list
+    setConvos(prev => [newConversation, ...prev]);
+    setShowVoiceInterface(false);
+  };
 
   const exportLeadsCSV = () => {
     const header = [
@@ -605,9 +613,9 @@ export default function ManzilVoiceAgentDashboard(): JSX.Element {
                               <Slider value={[minVip]} min={0} max={100} step={1} onValueChange={(v) => setMinVip(v[0])} />
                               <div className="text-xs text-slate-500 mt-1">{minVip}+</div>
                             </div>
-                            <div className="md:col-span-2 flex justify-end">
-                              <Button variant="outline" onClick={exportConvosCSV}><Download className="w-4 h-4 mr-2" />Export CSV</Button>
-                            </div>
+                                        <div className="md:col-span-2 flex justify-end">
+              <Button variant="outline" onClick={exportConvosCSV}><Download className="w-4 h-4 mr-2" />Export CSV</Button>
+            </div>
                           </div>
 
                           <div className="overflow-hidden rounded-2xl border border-slate-200">
@@ -652,8 +660,8 @@ export default function ManzilVoiceAgentDashboard(): JSX.Element {
                               </tbody>
                             </table>
                           </div>
-                        </TabsContent>
-                      </Tabs>
+                                </TabsContent>
+      </Tabs>
 
                       {/* Details Modal (Conversation + Lead snapshot) */}
                       <Dialog open={open} onOpenChange={setOpen}>
@@ -710,12 +718,38 @@ export default function ManzilVoiceAgentDashboard(): JSX.Element {
                                 <Button><Share2 className="w-4 h-4 mr-2" /> Assign to an asset manager</Button>
                               </div>
                             </div>
-                          )}
-                        </DialogContent>
-                      </Dialog>
-                    </div>
-                  );
-                }
+                                    )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Floating Voice Button */}
+      <div className="fixed bottom-6 left-6 z-50">
+        <Button
+          onClick={() => setShowVoiceInterface(true)}
+          className="bg-green-600 hover:bg-green-700 text-white rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-200"
+          size="icon"
+        >
+          <Phone className="w-6 h-6" />
+        </Button>
+      </div>
+
+      {/* Voice Interface Modal */}
+      <Dialog open={showVoiceInterface} onOpenChange={setShowVoiceInterface}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between">
+              <span>Voice Conversation</span>
+              <Button variant="ghost" size="icon" onClick={() => setShowVoiceInterface(false)}>
+                <X className="w-4 h-4" />
+              </Button>
+            </DialogTitle>
+          </DialogHeader>
+          <VoiceConversation onConversationEnd={handleConversationEnd} />
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
 
                 // ----------------------
                 // Lightweight runtime tests (do not change unless wrong)
