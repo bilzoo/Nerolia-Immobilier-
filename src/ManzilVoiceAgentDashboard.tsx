@@ -74,7 +74,11 @@ const i18n = {
     transcript: "Transcript",
     openLead: "Open original lead",
     scheduleInspection: "Schedule inspection",
-    assignManager: "Assign to asset manager"
+    assignManager: "Assign to asset manager",
+    area: "Area",
+    duration: "Duration",
+    view: "View",
+    zone: "Zone"
   }
 } as const;
 
@@ -470,31 +474,31 @@ export default function ManzilVoiceAgentDashboard(): JSX.Element {
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="mb-4">
           <TabsTrigger value="leads">{t("leadsTab")}</TabsTrigger>
-          <TabsTrigger value="convos">Conversations</TabsTrigger>
+          <TabsTrigger value="convos">{t("convosTab")}</TabsTrigger>
         </TabsList>
 
         {/* Leads Tab */}
         <TabsContent value="leads" className="space-y-4">
           <div className="grid md:grid-cols-5 gap-4">
-            <Card className="rounded-2xl shadow-sm"><CardContent className="p-4"><div className="flex items-center gap-2 text-slate-600"><Building2 className="w-4 h-4"/> Total leads</div><div className="text-2xl font-semibold">{leadKpis.total}</div></CardContent></Card>
-            <Card className="rounded-2xl shadow-sm"><CardContent className="p-4"><div className="flex items-center gap-2 text-slate-600"><ShieldCheck className="w-4 h-4"/> % avec licence</div><div className="text-2xl font-semibold">{leadKpis.licensed}%</div></CardContent></Card>
-            <Card className="rounded-2xl shadow-sm"><CardContent className="p-4"><div className="flex items-center gap-2 text-slate-600"><Star className="w-4 h-4"/> Score moyen</div><div className="text-2xl font-semibold">{leadKpis.avgScore}</div></CardContent></Card>
-            <Card className="rounded-2xl shadow-sm"><CardContent className="p-4"><div className="flex items-center gap-2 text-slate-600"><DollarSign className="w-4 h-4"/> Yield mensuel moyen</div><div className="text-2xl font-semibold">{leadKpis.avgYield.toLocaleString()} AED</div></CardContent></Card>
-            <Card className="rounded-2xl shadow-sm"><CardContent className="p-4"><div className="flex items-center gap-2 text-slate-600"><Languages className="w-4 h-4"/> FR share</div><div className="text-2xl font-semibold">{Math.round(100 * (leadsFiltered.filter((l) => l.contact.language === "FR").length / (leadKpis.total || 1)))}%</div></CardContent></Card>
+            <Card className="rounded-2xl shadow-sm"><CardContent className="p-4"><div className="flex items-center gap-2 text-slate-600"><Building2 className="w-4 h-4"/> {t("totalLeads")}</div><div className="text-2xl font-semibold">{leadKpis.total}</div></CardContent></Card>
+            <Card className="rounded-2xl shadow-sm"><CardContent className="p-4"><div className="flex items-center gap-2 text-slate-600"><ShieldCheck className="w-4 h-4"/> {t("withLicense")}</div><div className="text-2xl font-semibold">{leadKpis.licensed}%</div></CardContent></Card>
+            <Card className="rounded-2xl shadow-sm"><CardContent className="p-4"><div className="flex items-center gap-2 text-slate-600"><Star className="w-4 h-4"/> {t("avgScore")}</div><div className="text-2xl font-semibold">{leadKpis.avgScore}</div></CardContent></Card>
+            <Card className="rounded-2xl shadow-sm"><CardContent className="p-4"><div className="flex items-center gap-2 text-slate-600"><DollarSign className="w-4 h-4"/> {t("avgYield")}</div><div className="text-2xl font-semibold">{leadKpis.avgYield.toLocaleString()} AED</div></CardContent></Card>
+            <Card className="rounded-2xl shadow-sm"><CardContent className="p-4"><div className="flex items-center gap-2 text-slate-600"><Languages className="w-4 h-4"/> {t("frShare")}</div><div className="text-2xl font-semibold">{Math.round(100 * (leadsFiltered.filter((l) => l.contact.language === "FR").length / (leadKpis.total || 1)))}%</div></CardContent></Card>
           </div>
 
           <div className="grid md:grid-cols-12 gap-3 items-end">
             <div className="md:col-span-5">
               <div className="relative">
                 <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
-                <Input placeholder="Rechercher (nom, email, zone, notes...)" className="pl-9" value={qLead} onChange={(e) => setQLead(e.target.value)} />
+                <Input placeholder={t("searchLeadPH")} className="pl-9" value={qLead} onChange={(e) => setQLead(e.target.value)} />
               </div>
             </div>
             <div className="md:col-span-3">
               <Select value={area} onValueChange={setArea}>
-                <SelectTrigger><SelectValue placeholder="Zone" /></SelectTrigger>
+                <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Toutes zones</SelectItem>
+                  <SelectItem value="all">{t("allZones")}</SelectItem>
                   <SelectItem value="palm">Palm Jumeirah</SelectItem>
                   <SelectItem value="downtown">Downtown</SelectItem>
                   <SelectItem value="marina">Marina</SelectItem>
@@ -502,12 +506,19 @@ export default function ManzilVoiceAgentDashboard(): JSX.Element {
               </Select>
             </div>
             <div className="md:col-span-2">
-              <div className="text-xs text-slate-500 mb-1 flex items-center gap-1"><Filter className="w-3 h-3" /> Min score</div>
+              <div className="text-xs text-slate-500 mb-1 flex items-center gap-1"><Filter className="w-3 h-3" /> {t("minScore")}</div>
               <Slider value={[minScore]} min={0} max={100} step={1} onValueChange={(v) => setMinScore(v[0])} />
               <div className="text-xs text-slate-500 mt-1">{minScore}+</div>
             </div>
             <div className="md:col-span-2 flex justify-end">
-              <Button variant="outline" onClick={exportLeadsCSV}><Download className="w-4 h-4 mr-2" />Exporter CSV</Button>
+              <Button 
+                variant="outline" 
+                onClick={exportLeadsCSV}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-white border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-colors duration-200 rounded-lg shadow-sm"
+              >
+                <Download className="w-4 h-4" />
+                {t("exportCSV")}
+              </Button>
             </div>
           </div>
 
@@ -515,16 +526,16 @@ export default function ManzilVoiceAgentDashboard(): JSX.Element {
             <table className="w-full text-sm">
               <thead className="bg-slate-50 text-slate-600">
                 <tr>
-                  <th className="text-left p-3">Heure</th>
-                  <th className="text-left p-3">Contact</th>
-                  <th className="text-left p-3">Bien</th>
-                  <th className="text-left p-3">Licence</th>
-                  <th className="text-left p-3">Occ. cible</th>
-                  <th className="text-left p-3">Rate (AED)</th>
-                  <th className="text-left p-3">Yield mensuel (AED)</th>
-                  <th className="text-left p-3">Score</th>
-                  <th className="text-left p-3">Campagne</th>
-                  <th className="text-right p-3">Actions</th>
+                  <th className="text-left p-3">{t("time")}</th>
+                  <th className="text-left p-3">{t("contact")}</th>
+                  <th className="text-left p-3">{t("property")}</th>
+                  <th className="text-left p-3">{t("license")}</th>
+                  <th className="text-left p-3">{t("targetOcc")}</th>
+                  <th className="text-left p-3">{t("nightlyRate")}</th>
+                  <th className="text-left p-3">{t("monthlyYield")}</th>
+                  <th className="text-left p-3">{t("score")}</th>
+                  <th className="text-left p-3">{t("campaign")}</th>
+                  <th className="text-right p-3">{t("actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -536,22 +547,27 @@ export default function ManzilVoiceAgentDashboard(): JSX.Element {
                       <div className="text-xs text-slate-500">{l.contact.phone} · {l.contact.email}</div>
                     </td>
                     <td className="p-3">{l.property.type} {String(l.property.bedrooms)}BR · {l.property.area}</td>
-                    <td className="p-3">{l.property.has_tourism_license ? <Badge className="rounded-xl">Oui</Badge> : <Badge variant="secondary" className="rounded-xl">Non</Badge>}</td>
+                    <td className="p-3">{l.property.has_tourism_license ? <Badge className="rounded-xl">{t("yes")}</Badge> : <Badge variant="secondary" className="rounded-xl">{t("no")}</Badge>}</td>
                     <td className="p-3">{String(l.revenue_expectations.target_occupancy_pct)}%</td>
                     <td className="p-3">{l.revenue_expectations.nightly_rate_aed.toLocaleString()}</td>
                     <td className="p-3">{l.monthly_est_aed.toLocaleString()}</td>
                     <td className="p-3"><Badge className="rounded-xl">{l.viability}</Badge></td>
                     <td className="p-3 text-xs">{l.campaign}</td>
                     <td className="p-3 text-right">
-                      <Button size="sm" onClick={() => { const linked = convos.find((c) => c.lead_id === l.id); if (linked) { onOpen(linked); } }}>
-                        Voir conversation
+                      <Button 
+                        size="sm" 
+                        onClick={() => { const linked = convos.find((c) => c.lead_id === l.id); if (linked) { onOpen(linked); } }}
+                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200 rounded-md"
+                      >
+                        <Phone className="w-3 h-3" />
+                        {t("viewConversation")}
                       </Button>
                     </td>
                   </tr>
                 ))}
                 {leadsFiltered.length === 0 && (
                   <tr>
-                    <td className="p-6 text-center text-slate-500" colSpan={10}>Aucun lead avec ces filtres.</td>
+                    <td className="p-6 text-center text-slate-500" colSpan={10}>{t("noLeadsWithFilters")}</td>
                   </tr>
                 )}
               </tbody>
@@ -562,25 +578,25 @@ export default function ManzilVoiceAgentDashboard(): JSX.Element {
         {/* Conversations Tab */}
         <TabsContent value="convos" className="space-y-4">
           <div className="grid md:grid-cols-5 gap-4">
-            <Card className="rounded-2xl shadow-sm"><CardContent className="p-4"><div className="flex items-center gap-2 text-slate-600"><Phone className="w-4 h-4"/> Total appels</div><div className="text-2xl font-semibold">{convKpis.total}</div></CardContent></Card>
-            <Card className="rounded-2xl shadow-sm"><CardContent className="p-4"><div className="flex items-center gap-2 text-slate-600"><Star className="w-4 h-4"/> Leads qualifies</div><div className="text-2xl font-semibold">{convKpis.qualified}</div></CardContent></Card>
-            <Card className="rounded-2xl shadow-sm"><CardContent className="p-4"><div className="flex items-center gap-2 text-slate-600"><CircleDot className="w-4 h-4"/> Ultra‑prioritaires</div><div className="text-2xl font-semibold">{convKpis.high}</div></CardContent></Card>
-            <Card className="rounded-2xl shadow-sm"><CardContent className="p-4"><div className="flex items-center gap-2 text-slate-600"><Clock className="w-4 h-4"/> Duree moyenne</div><div className="text-2xl font-semibold">{convKpis.avgDur}</div></CardContent></Card>
-            <Card className="rounded-2xl shadow-sm"><CardContent className="p-4"><div className="flex items-center gap-2 text-slate-600"><Languages className="w-4 h-4"/> FR share</div><div className="text-2xl font-semibold">{convKpis.frShare}%</div></CardContent></Card>
+            <Card className="rounded-2xl shadow-sm"><CardContent className="p-4"><div className="flex items-center gap-2 text-slate-600"><Phone className="w-4 h-4"/> {t("totalCalls")}</div><div className="text-2xl font-semibold">{convKpis.total}</div></CardContent></Card>
+            <Card className="rounded-2xl shadow-sm"><CardContent className="p-4"><div className="flex items-center gap-2 text-slate-600"><Star className="w-4 h-4"/> {t("qualifiedLeads")}</div><div className="text-2xl font-semibold">{convKpis.qualified}</div></CardContent></Card>
+            <Card className="rounded-2xl shadow-sm"><CardContent className="p-4"><div className="flex items-center gap-2 text-slate-600"><CircleDot className="w-4 h-4"/> {t("highPriority")}</div><div className="text-2xl font-semibold">{convKpis.high}</div></CardContent></Card>
+            <Card className="rounded-2xl shadow-sm"><CardContent className="p-4"><div className="flex items-center gap-2 text-slate-600"><Clock className="w-4 h-4"/> {t("avgDuration")}</div><div className="text-2xl font-semibold">{convKpis.avgDur}</div></CardContent></Card>
+            <Card className="rounded-2xl shadow-sm"><CardContent className="p-4"><div className="flex items-center gap-2 text-slate-600"><Languages className="w-4 h-4"/> {t("frShare")}</div><div className="text-2xl font-semibold">{convKpis.frShare}%</div></CardContent></Card>
           </div>
 
           <div className="grid md:grid-cols-12 gap-3 items-end">
             <div className="md:col-span-4">
               <div className="relative">
                 <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
-                <Input placeholder="Rechercher (nom, resume, transcript, service...)" className="pl-9" value={q} onChange={(e) => setQ(e.target.value)} />
+                <Input placeholder={t("searchConvosPH")} className="pl-9" value={q} onChange={(e) => setQ(e.target.value)} />
               </div>
             </div>
             <div className="md:col-span-3">
               <Select value={service} onValueChange={setService}>
-                <SelectTrigger><SelectValue placeholder="Service" /></SelectTrigger>
+                <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Tous services</SelectItem>
+                  <SelectItem value="all">{t("allServices")}</SelectItem>
                   <SelectItem value="owner">Owner</SelectItem>
                   <SelectItem value="palm">Palm Jumeirah</SelectItem>
                   <SelectItem value="downtown">Downtown</SelectItem>
@@ -589,9 +605,9 @@ export default function ManzilVoiceAgentDashboard(): JSX.Element {
             </div>
             <div className="md:col-span-2">
               <Select value={outcome} onValueChange={setOutcome}>
-                <SelectTrigger><SelectValue placeholder="Statut" /></SelectTrigger>
+                <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Tous statuts</SelectItem>
+                  <SelectItem value="all">{t("allStatuses")}</SelectItem>
                   <SelectItem value="High-Priority">High‑Priority</SelectItem>
                   <SelectItem value="Qualified">Qualified</SelectItem>
                   <SelectItem value="Follow-up">Follow‑up</SelectItem>
@@ -600,16 +616,16 @@ export default function ManzilVoiceAgentDashboard(): JSX.Element {
                             </div>
                             <div className="md:col-span-1">
                               <Select value={lang} onValueChange={setLang}>
-                                <SelectTrigger><SelectValue placeholder="Language" /></SelectTrigger>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="all">All</SelectItem>
+                                  <SelectItem value="all">{t("all")}</SelectItem>
                                   <SelectItem value="FR">FR</SelectItem>
                                   <SelectItem value="EN">EN</SelectItem>
                                 </SelectContent>
                               </Select>
                             </div>
                             <div className="md:col-span-2">
-                              <div className="text-xs text-slate-500 mb-1 flex items-center gap-1"><Filter className="w-3 h-3" /> Min VIP</div>
+                              <div className="text-xs text-slate-500 mb-1 flex items-center gap-1"><Filter className="w-3 h-3" /> {t("minVip")}</div>
                               <Slider value={[minVip]} min={0} max={100} step={1} onValueChange={(v) => setMinVip(v[0])} />
                               <div className="text-xs text-slate-500 mt-1">{minVip}+</div>
                             </div>
@@ -622,16 +638,16 @@ export default function ManzilVoiceAgentDashboard(): JSX.Element {
                             <table className="w-full text-sm">
                               <thead className="bg-slate-50 text-slate-600">
                                 <tr>
-                                  <th className="text-left p-3">Time</th>
-                                  <th className="text-left p-3">Caller</th>
-                                  <th className="text-left p-3">Service</th>
-                                  <th className="text-left p-3">Area</th>
-                                  <th className="text-left p-3">Language</th>
+                                  <th className="text-left p-3">{t("time")}</th>
+                                  <th className="text-left p-3">{t("caller")}</th>
+                                  <th className="text-left p-3">{t("service")}</th>
+                                  <th className="text-left p-3">{t("area")}</th>
+                                  <th className="text-left p-3">{t("language")}</th>
                                   <th className="text-left p-3">VIP</th>
-                                  <th className="text-left p-3">Duration</th>
-                                  <th className="text-left p-3">Status</th>
-                                  <th className="text-left p-3">Lead</th>
-                                  <th className="text-right p-3">Actions</th>
+                                  <th className="text-left p-3">{t("duration")}</th>
+                                  <th className="text-left p-3">{t("status")}</th>
+                                  <th className="text-left p-3">{t("lead")}</th>
+                                  <th className="text-right p-3">{t("actions")}</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -649,12 +665,21 @@ export default function ManzilVoiceAgentDashboard(): JSX.Element {
                                     <td className="p-3">{secondsToMin(it.duration_sec)}</td>
                                     <td className="p-3"><span className={"px-2 py-1 rounded-xl text-xs " + outcomeTone(it.outcome)}>{it.outcome}</span></td>
                                     <td className="p-3 text-xs">{it.lead_id}</td>
-                                    <td className="p-3 text-right"><Button size="sm" onClick={() => onOpen(it)}>View</Button></td>
+                                    <td className="p-3 text-right">
+                                      <Button 
+                                        size="sm" 
+                                        onClick={() => onOpen(it)}
+                                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 transition-colors duration-200 rounded-md"
+                                      >
+                                        <AudioLines className="w-3 h-3" />
+                                        {t("view")}
+                                      </Button>
+                                    </td>
                                   </tr>
                                 ))}
                                 {convosFiltered.length === 0 && (
                                   <tr>
-                                    <td className="p-6 text-center text-slate-500" colSpan={10}>No results with these filters.</td>
+                                    <td className="p-6 text-center text-slate-500" colSpan={10}>{t("noConvosWithFilters")}</td>
                                   </tr>
                                 )}
                               </tbody>
@@ -665,57 +690,137 @@ export default function ManzilVoiceAgentDashboard(): JSX.Element {
 
                       {/* Details Modal (Conversation + Lead snapshot) */}
                       <Dialog open={open} onOpenChange={setOpen}>
-                        <DialogContent className="max-w-3xl">
-                          <DialogHeader>
-                            <DialogTitle className="flex items-center justify-between">
-                              <span>Conversation · {active ? active.id : ""}</span>
-                              <Button variant="ghost" size="icon" onClick={() => setOpen(false)}><X className="w-4 h-4" /></Button>
+                        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto p-8">
+                          <DialogHeader className="pb-6">
+                            <DialogTitle className="flex items-center justify-between text-xl font-semibold">
+                              <span>{t("conversation")} · {active ? active.id : ""}</span>
+                              <Button variant="outline" size="icon" onClick={() => setOpen(false)} className="rounded-full">
+                                <X className="w-4 h-4" />
+                              </Button>
                             </DialogTitle>
                           </DialogHeader>
 
                           {active && (
-                            <div className="grid gap-4">
+                            <div className="space-y-8 px-2">
                               {(() => {
                                 const lead = leadsEnriched.find((l) => l.id === active.lead_id);
                                 if (!lead) return null;
                                 return (
-                                  <div className="grid md:grid-cols-3 gap-3">
-                                    <Card className="rounded-2xl"><CardContent className="p-3 text-sm"><div className="text-slate-500">Lead</div><div className="font-medium">{lead.contact.name}</div><div className="text-xs text-slate-500">{lead.contact.phone} · {lead.contact.email}</div></CardContent></Card>
-                                    <Card className="rounded-2xl"><CardContent className="p-3 text-sm"><div className="text-slate-500">Property</div><div className="font-medium">{lead.property.type} {String(lead.property.bedrooms)}BR · {lead.property.area}</div></CardContent></Card>
-                                    <Card className="rounded-2xl"><CardContent className="p-3 text-sm"><div className="text-slate-500">Viability / Yield</div><div className="font-medium flex items-center gap-2"><Badge>Score {lead.viability}</Badge><span className="ml-auto">{lead.monthly_est_aed.toLocaleString()} AED/mo</span></div></CardContent></Card>
+                                  <div className="grid md:grid-cols-3 gap-6">
+                                    <Card className="rounded-2xl shadow-sm border-slate-200">
+                                      <CardContent className="p-6">
+                                        <div className="text-slate-500 text-sm font-medium mb-2">{t("lead")}</div>
+                                        <div className="font-semibold text-lg mb-1">{lead.contact.name}</div>
+                                        <div className="text-sm text-slate-600">{lead.contact.phone}</div>
+                                        <div className="text-sm text-slate-600">{lead.contact.email}</div>
+                                      </CardContent>
+                                    </Card>
+                                    <Card className="rounded-2xl shadow-sm border-slate-200">
+                                      <CardContent className="p-6">
+                                        <div className="text-slate-500 text-sm font-medium mb-2">{t("property")}</div>
+                                        <div className="font-semibold text-lg">{lead.property.type} {String(lead.property.bedrooms)}BR</div>
+                                        <div className="text-sm text-slate-600 mt-1">{lead.property.area}</div>
+                                      </CardContent>
+                                    </Card>
+                                    <Card className="rounded-2xl shadow-sm border-slate-200">
+                                      <CardContent className="p-6">
+                                        <div className="text-slate-500 text-sm font-medium mb-3">{t("viabilityYield")}</div>
+                                        <div className="flex items-center gap-3">
+                                          <Badge className="bg-blue-100 text-blue-800 px-3 py-1">Score {lead.viability}</Badge>
+                                        </div>
+                                        <div className="text-lg font-semibold text-slate-800 mt-2">{lead.monthly_est_aed.toLocaleString()} AED/mo</div>
+                                      </CardContent>
+                                    </Card>
                                   </div>
                                 );
                               })()}
 
-                              <div className="grid md:grid-cols-3 gap-3">
-                                <Card className="rounded-2xl"><CardContent className="p-3 text-sm"><div className="text-slate-500">Caller</div><div className="font-medium">{active.caller_name}</div><div className="text-xs text-slate-500">{active.caller_phone}</div></CardContent></Card>
-                                <Card className="rounded-2xl"><CardContent className="p-3 text-sm"><div className="text-slate-500">Service</div><div className="font-medium">{active.service_type}</div></CardContent></Card>
-                                <Card className="rounded-2xl"><CardContent className="p-3 text-sm"><div className="text-slate-500">Language / Status</div><div className="flex items-center gap-2"><Badge>{active.language}</Badge><span className={"px-2 py-1 rounded-xl text-xs " + sentimentColor(active.sentiment)}>{active.sentiment}</span><span className={"px-2 py-1 rounded-xl text-xs " + outcomeTone(active.outcome)}>{active.outcome}</span></div></CardContent></Card>
+                              <div className="grid md:grid-cols-3 gap-6">
+                                <Card className="rounded-2xl shadow-sm border-slate-200">
+                                  <CardContent className="p-6">
+                                    <div className="text-slate-500 text-sm font-medium mb-2">{t("caller")}</div>
+                                    <div className="font-semibold text-lg mb-1">{active.caller_name}</div>
+                                    <div className="text-sm text-slate-600">{active.caller_phone}</div>
+                                  </CardContent>
+                                </Card>
+                                <Card className="rounded-2xl shadow-sm border-slate-200">
+                                  <CardContent className="p-6">
+                                    <div className="text-slate-500 text-sm font-medium mb-2">{t("service")}</div>
+                                    <div className="font-semibold text-lg">{active.service_type}</div>
+                                  </CardContent>
+                                </Card>
+                                <Card className="rounded-2xl shadow-sm border-slate-200">
+                                  <CardContent className="p-6">
+                                    <div className="text-slate-500 text-sm font-medium mb-3">{t("languageStatus")}</div>
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      <Badge className="bg-slate-100 text-slate-700 px-3 py-1">{active.language}</Badge>
+                                      <span className={"px-3 py-1 rounded-full text-xs font-medium " + sentimentColor(active.sentiment)}>{active.sentiment}</span>
+                                      <span className={"px-3 py-1 rounded-full text-xs font-medium " + outcomeTone(active.outcome)}>{active.outcome}</span>
+                                    </div>
+                                  </CardContent>
+                                </Card>
                               </div>
 
-                              <div className="rounded-2xl border p-3">
-                                <div className="flex items-center gap-2 text-slate-600 mb-2"><AudioLines className="w-4 h-4" /> Recording</div>
-                                <audio controls className="w-full"><source src={active.audio_url} type="audio/wav" />Your browser does not support HTML5 audio.</audio>
-                              </div>
-
-                              <div className="grid md:grid-cols-2 gap-3">
-                                <div className="rounded-2xl border p-3">
-                                  <div className="text-slate-600 mb-2 font-medium">Summary</div>
-                                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{active.summary}</p>
-                                  <div className="mt-3 flex gap-2 flex-wrap">
-                                    {active.tags && active.tags.map((t: string) => (<Badge key={t} variant="secondary" className="rounded-xl">{t}</Badge>))}
+                              <Card className="rounded-2xl shadow-sm border-slate-200">
+                                <CardContent className="p-6">
+                                  <div className="flex items-center gap-3 text-slate-700 mb-4">
+                                    <AudioLines className="w-5 h-5" /> 
+                                    <span className="font-semibold text-lg">{t("recording")}</span>
                                   </div>
-                                </div>
-                                <div className="rounded-2xl border p-3">
-                                  <div className="text-slate-600 mb-2 font-medium">Transcript</div>
-                                  <div className="text-xs max-h-56 overflow-auto whitespace-pre-wrap text-slate-700 bg-slate-50 p-2 rounded-xl border">{active.transcript}</div>
-                                </div>
+                                  <div className="bg-slate-50 rounded-xl p-4">
+                                    <audio controls className="w-full h-12">
+                                      <source src={active.audio_url} type="audio/wav" />
+                                      Your browser does not support HTML5 audio.
+                                    </audio>
+                                  </div>
+                                </CardContent>
+                              </Card>
+
+                              <div className="grid md:grid-cols-2 gap-6">
+                                <Card className="rounded-2xl shadow-sm border-slate-200">
+                                  <CardContent className="p-6">
+                                    <div className="text-slate-700 font-semibold text-lg mb-4">{t("summary")}</div>
+                                    <p className="text-slate-600 leading-relaxed whitespace-pre-wrap mb-4">{active.summary}</p>
+                                    <div className="flex gap-2 flex-wrap">
+                                      {active.tags && active.tags.map((t: string) => (
+                                        <Badge key={t} variant="secondary" className="rounded-full px-3 py-1 bg-slate-100 text-slate-700">
+                                          {t}
+                                        </Badge>
+                                      ))}
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                                <Card className="rounded-2xl shadow-sm border-slate-200">
+                                  <CardContent className="p-6">
+                                    <div className="text-slate-700 font-semibold text-lg mb-4">{t("transcript")}</div>
+                                    <div className="text-sm max-h-64 overflow-auto whitespace-pre-wrap text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-200 leading-relaxed">
+                                      {active.transcript}
+                                    </div>
+                                  </CardContent>
+                                </Card>
                               </div>
 
-                              <div className="flex flex-wrap gap-2 justify-end">
-                                <Button variant="outline"><Link2 className="w-4 h-4 mr-2" /> Open original lead</Button>
-                                <Button variant="outline"><CalendarClock className="w-4 h-4 mr-2" /> Schedule inspection</Button>
-                                <Button><Share2 className="w-4 h-4 mr-2" /> Assign to an asset manager</Button>
+                              <div className="flex flex-wrap gap-4 justify-end pt-8 border-t border-slate-200">
+                                <Button 
+                                  variant="outline" 
+                                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-white border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-colors duration-200 rounded-lg shadow-sm"
+                                >
+                                  <Link2 className="w-4 h-4" /> 
+                                  {t("openLead")}
+                                </Button>
+                                <Button 
+                                  variant="outline" 
+                                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-white border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-colors duration-200 rounded-lg shadow-sm"
+                                >
+                                  <CalendarClock className="w-4 h-4" /> 
+                                  {t("scheduleInspection")}
+                                </Button>
+                                <Button 
+                                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200 rounded-lg shadow-sm"
+                                >
+                                  <Share2 className="w-4 h-4" /> 
+                                  {t("assignManager")}
+                                </Button>
                               </div>
                             </div>
                                     )}

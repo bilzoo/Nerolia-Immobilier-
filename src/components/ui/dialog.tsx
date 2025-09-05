@@ -1,6 +1,5 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
-
 type DialogRootProps = { open: boolean; onOpenChange?: (o: boolean) => void; children: React.ReactNode };
 export function Dialog({ open, onOpenChange, children }: DialogRootProps) {
   React.useEffect(() => {
@@ -17,14 +16,8 @@ export function Dialog({ open, onOpenChange, children }: DialogRootProps) {
     document.body
   );
 }
-
 export function DialogContent({ className = "", ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return <div className={`bg-white rounded-2xl shadow-xl w-full max-w-3xl ${className}`} {...props} />;
 }
-
-export function DialogHeader(props: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className="border-b p-4" {...props} />;
-}
-export function DialogTitle(props: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className="text-lg font-semibold" {...props} />;
-}
+export function DialogHeader(props: React.HTMLAttributes<HTMLDivElement>) { return <div className="border-b p-4" {...props} />; }
+export function DialogTitle(props: React.HTMLAttributes<HTMLDivElement>) { return <div className="text-lg font-semibold" {...props} />; }
